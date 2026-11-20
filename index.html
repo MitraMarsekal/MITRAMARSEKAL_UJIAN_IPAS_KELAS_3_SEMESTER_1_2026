@@ -203,7 +203,7 @@
       qText.textContent = q.question;
       optionsBox.innerHTML = "";
 
-      ["A", "B", "C", "D"].forEach((letter) => {
+      ["A", "B", "C", "D", "E"].forEach((letter) => {
         if (!q.options[letter]) return;
 
         const selected = answers[q.id] === letter;
