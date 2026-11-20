@@ -101,7 +101,7 @@
   <div class="card">
     <div class="top-bar">
       <h1 style="font-size: 20px; margin: 0;">Aplikasi CBT (Google Sheets)</h1>
-      <div id="timer" class="timer hidden">10:00</div>
+      <div id="timer" class="timer hidden">60:00</div>
     </div>
 
     <!-- Form Login Peserta -->
@@ -131,7 +131,7 @@
       <div class="nav">
         <button id="prev-btn" type="button">Sebelumnya</button>
         <button id="next-btn" type="button">Berikutnya</button>
-        <button id="finish-btn" type="button" class="btn-finish">Kumpulkan</button>
+        <button id="finish-btn" type="button" class="btn-finish">Selesai</button>
       </div>
     </section>
 
@@ -203,7 +203,7 @@
       qText.textContent = q.question;
       optionsBox.innerHTML = "";
 
-      ["A", "B", "C", "D", "E"].forEach((letter) => {
+      ["A", "B", "C", "D","E"].forEach((letter) => {
         if (!q.options[letter]) return;
 
         const selected = answers[q.id] === letter;
