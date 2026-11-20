@@ -428,25 +428,31 @@
           <div id="examError" class="alert hidden"></div>
         </div>
 
+CSS
 img,
-.q-image {
+.q-image,
+.soal-img {
   display: block;
   max-width: 100%;
   height: auto;
-  margin: 12px 0;
-  border-radius: 8px;
+  object-fit: contain;
 }
 
 :fullscreen img,
-:fullscreen .q-image {
+:fullscreen .q-image,
+:fullscreen .soal-img,
+:-webkit-full-screen img,
+:-webkit-full-screen .q-image,
+:-webkit-full-screen .soal-img {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  max-height: 65vh;
-  width: auto;
-  max-width: 100%;
+  max-width: 100% !important;
+  max-height: 60vh !important;
+  width: auto !important;
+  height: auto !important;
   position: relative;
-  z-index: 5;
+  z-index: 10;
 }
 
         <aside class="card">
