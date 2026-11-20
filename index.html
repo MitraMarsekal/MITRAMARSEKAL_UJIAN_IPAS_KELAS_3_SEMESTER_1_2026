@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ujian CBT • Pilihan Ganda (A–E) • 10 Menit</title>
+  <title>CBT PILIHAN GANDA • 50 SOAL (A–E) • 60 MENIT</title>
   <style>
     :root {
       --bg: #f1f5f9;
@@ -37,7 +37,8 @@
     }
 
     :fullscreen,
-    ::backdrop {
+    ::backdrop,
+    :-webkit-full-screen {
       width: 100vw;
       min-height: 100vh;
       background: var(--bg);
@@ -243,7 +244,6 @@
       white-space: pre-line;
     }
 
-    /* Ukuran gambar soal pada tampilan normal */
     img,
     .q-image,
     .soal-img {
@@ -257,7 +257,6 @@
       border-radius: 8px;
     }
 
-    /* Penyesuaian ukuran gambar saat masuk mode layar penuh */
     :fullscreen img,
     :fullscreen .q-image,
     :fullscreen .soal-img,
@@ -413,9 +412,9 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">CBT UJIAN • PILIHAN GANDA (A–E) • 10 MENIT</div>
+    <div class="brand">CBT PILIHAN GANDA • 50 SOAL (A–E) • 60 MENIT</div>
     <div class="topbar-right">
-      <div id="timerBox" class="timer-box hidden">Sisa Waktu: 10:00</div>
+      <div id="timerBox" class="timer-box hidden">Sisa Waktu: 60:00</div>
       <button id="fullscreenBtn" type="button" class="btn-secondary" onclick="toggleFullscreen()">
         Layar Penuh
       </button>
@@ -423,3 +422,444 @@
   </header>
 
   <main class="app-container">
+    <section id="loginScreen" class="card login-card">
+      <h2>Masuk Ujian</h2>
+      <p class="subtitle">
+        Jumlah soal: <strong>50 soal pilihan ganda (A–E)</strong> dengan durasi <strong>60 menit</strong>.
+      </p>
+
+      <div class="form-group">
+        <label class="field-label" for="studentName">Nama Lengkap</label>
+        <input id="studentName" type="text" placeholder="Masukkan nama lengkap" autocomplete="name" />
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="studentId">NIS / NIM / Nomor Absen</label>
+        <input id="studentId" type="text" placeholder="Masukkan NIS atau NIM" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="examToken">Token Ujian</label>
+        <input id="examToken" type="password" placeholder="Masukkan token ujian" autocomplete="off" />
+      </div>
+
+      <button id="startBtn" type="button" class="btn-primary btn-full" onclick="startExam()">
+        Mulai Ujian
+      </button>
+
+      <div id="loginError" class="alert hidden"></div>
+    </section>
+
+    <section id="examScreen" class="hidden">
+      <div class="exam-grid">
+        <div class="card">
+          <div class="q-header">
+            <span id="qCounter">Soal 1 dari 50</span>
+            <span id="participantBadge"></span>
+          </div>
+
+          <div id="qText" class="q-text"></div>
+          <img id="qImage" class="q-image soal-img hidden" alt="Gambar soal" />
+          <div id="optionsBox" class="options-box"></div>
+
+          <div class="nav-bar">
+            <div class="nav-group">
+              <button id="prevBtn" type="button" class="btn-secondary" onclick="prevQuestion()">
+                Sebelumnya
+              </button>
+              <button id="nextBtn" type="button" class="btn-secondary" onclick="nextQuestion()">
+                Berikutnya
+              </button>
+            </div>
+
+            <button id="submitBtn" type="button" class="btn-success" onclick="confirmSubmitExam()">
+              Kumpulkan Jawaban
+            </button>
+          </div>
+
+          <div id="examError" class="alert hidden"></div>
+        </div>
+
+        <aside class="card">
+          <h3>Navigasi Soal</h3>
+          <div id="answeredCount" class="subtitle" style="margin-bottom: 10px;">
+            Terjawab: 0 / 50
+          </div>
+          <div id="navGrid" class="nav-grid"></div>
+          <div class="legend">
+            • Biru tua: Soal aktif<br />
+            • Biru muda: Sudah dijawab<br />
+            • Abu-abu: Belum dijawab
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="card result-box hidden">
+      <h2>Ujian Selesai</h2>
+      <p class="subtitle">Jawaban Anda telah berhasil direkam.</p>
+
+      <div id="scoreDisplay" class="score-display">0</div>
+      <div id="resultSummary" class="result-summary"></div>
+
+      <button type="button" class="btn-primary" onclick="location.reload()">
+        Kembali ke Halaman Awal
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw3WKkpwbOiz1D6Zm9SeGWUHV1d0WFLcpRYFLkg7oQbqcYKIhQIw-RXnPt3eZq8zPp3dQ/exec";
+    const MAX_QUESTIONS = 50;
+    const DEFAULT_DURATION_SECONDS = 3600; // 60 menit
+
+    let questions = [];
+    let currentIndex = 0;
+    let answers = {};
+    let remainingSeconds = DEFAULT_DURATION_SECONDS;
+    let timerInterval = null;
+    let isSubmitting = false;
+
+    let sessionData = {
+      name: "",
+      studentId: "",
+      token: ""
+    };
+
+    const loginScreen = document.getElementById("loginScreen");
+    const examScreen = document.getElementById("examScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const timerBox = document.getElementById("timerBox");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    const studentNameInput = document.getElementById("studentName");
+    const studentIdInput = document.getElementById("studentId");
+    const examTokenInput = document.getElementById("examToken");
+    const startBtn = document.getElementById("startBtn");
+    const loginError = document.getElementById("loginError");
+
+    const qCounter = document.getElementById("qCounter");
+    const participantBadge = document.getElementById("participantBadge");
+    const qText = document.getElementById("qText");
+    const qImage = document.getElementById("qImage");
+    const optionsBox = document.getElementById("optionsBox");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const examError = document.getElementById("examError");
+    const navGrid = document.getElementById("navGrid");
+    const answeredCount = document.getElementById("answeredCount");
+
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const resultSummary = document.getElementById("resultSummary");
+
+    function showError(el, msg) {
+      el.textContent = msg;
+      el.classList.remove("hidden");
+    }
+
+    function hideError(el) {
+      el.textContent = "";
+      el.classList.add("hidden");
+    }
+
+    function formatTime(sec) {
+      const safe = Math.max(0, Number(sec) || 0);
+      const hrs = Math.floor(safe / 3600);
+      const mins = Math.floor((safe % 3600) / 60);
+      const secs = safe % 60;
+
+      if (hrs > 0) {
+        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+      }
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function updateTimerDisplay() {
+      timerBox.textContent = `Sisa Waktu: ${formatTime(remainingSeconds)}`;
+      if (remainingSeconds <= 300) {
+        timerBox.classList.add("warning");
+      } else {
+        timerBox.classList.remove("warning");
+      }
+    }
+
+    function startTimer(durationSec) {
+      clearInterval(timerInterval);
+      remainingSeconds = Number(durationSec) > 0 ? Number(durationSec) : DEFAULT_DURATION_SECONDS;
+      timerBox.classList.remove("hidden");
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        remainingSeconds--;
+        updateTimerDisplay();
+
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          submitExam(true);
+        }
+      }, 1000);
+    }
+
+    function toggleFullscreen() {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    function syncFullscreenButton() {
+      const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      fullscreenBtn.textContent = active ? "Keluar Layar Penuh" : "Layar Penuh";
+    }
+
+    document.addEventListener("fullscreenchange", syncFullscreenButton);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenButton);
+
+    async function startExam() {
+      hideError(loginError);
+
+      const name = studentNameInput.value.trim();
+      const studentId = studentIdInput.value.trim();
+      const token = examTokenInput.value.trim();
+
+      if (!name || !studentId || !token) {
+        showError(loginError, "Nama lengkap, NIS/NIM, dan Token ujian wajib diisi.");
+        return;
+      }
+
+      startBtn.disabled = true;
+      startBtn.textContent = "Memuat 50 Soal...";
+
+      try {
+        const url = `${API_URL}?token=${encodeURIComponent(token)}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        if (!data.ok) {
+          showError(loginError, data.message || "Gagal memuat soal.");
+          return;
+        }
+
+        const loadedQuestions = Array.isArray(data.questions)
+          ? data.questions.slice(0, MAX_QUESTIONS)
+          : [];
+
+        if (!loadedQuestions.length) {
+          showError(loginError, "SOAL TIDAK DITEMUKAN.");
+          return;
+        }
+
+        questions = loadedQuestions;
+        currentIndex = 0;
+        answers = {};
+        sessionData = { name, studentId, token };
+
+        participantBadge.textContent = `${name} (${studentId})`;
+        loginScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        examScreen.classList.remove("hidden");
+
+        buildNavGrid();
+        renderQuestion();
+        startTimer(data.durationSeconds || DEFAULT_DURATION_SECONDS);
+      } catch (err) {
+        showError(loginError, "Gagal terhubung ke Google Apps Script. Periksa URL deployment.");
+      } finally {
+        startBtn.disabled = false;
+        startBtn.textContent = "Mulai Ujian";
+      }
+    }
+
+    function buildNavGrid() {
+      navGrid.innerHTML = "";
+      questions.forEach((q, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "num-btn";
+        btn.textContent = String(idx + 1);
+        btn.addEventListener("click", () => {
+          currentIndex = idx;
+          renderQuestion();
+        });
+        navGrid.appendChild(btn);
+      });
+      updateNavGrid();
+    }
+
+    function updateNavGrid() {
+      const buttons = navGrid.querySelectorAll(".num-btn");
+      let answeredTotal = 0;
+
+      questions.forEach((q, idx) => {
+        const hasAns = Boolean(answers[q.id]);
+        if (hasAns) answeredTotal++;
+
+        const btn = buttons[idx];
+        if (!btn) return;
+
+        btn.classList.toggle("answered", hasAns);
+        btn.classList.toggle("current", idx === currentIndex);
+      });
+
+      answeredCount.textContent = `Terjawab: ${answeredTotal} / ${questions.length}`;
+    }
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      if (!q) return;
+
+      qCounter.textContent = `Soal ${currentIndex + 1} dari ${questions.length}`;
+      qText.textContent = q.question;
+
+      const imgSrc = String((q.image || q.gambar || "")).trim();
+      if (imgSrc) {
+        qImage.src = imgSrc;
+        qImage.classList.remove("hidden");
+      } else {
+        qImage.removeAttribute("src");
+        qImage.classList.add("hidden");
+      }
+
+      optionsBox.innerHTML = "";
+
+      ["A", "B", "C", "D", "E"].forEach((letter) => {
+        const optText = q.options && q.options[letter];
+        if (!optText) return;
+
+        const selected = answers[q.id] === letter;
+        const label = document.createElement("label");
+        label.className = `option ${selected ? "active" : ""}`;
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `opt-${q.id}`;
+        radio.value = letter;
+        radio.checked = selected;
+        radio.addEventListener("change", () => {
+          answers[q.id] = letter;
+          renderQuestion();
+        });
+
+        const letterSpan = document.createElement("span");
+        letterSpan.className = "opt-letter";
+        letterSpan.textContent = `${letter}.`;
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = optText;
+
+        label.appendChild(radio);
+        label.appendChild(letterSpan);
+        label.appendChild(textSpan);
+        optionsBox.appendChild(label);
+      });
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === questions.length - 1;
+      updateNavGrid();
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      }
+    }
+
+    function confirmSubmitExam() {
+      const answeredTotal = questions.filter((q) => Boolean(answers[q.id])).length;
+      const unanswered = questions.length - answeredTotal;
+      const msg = unanswered > 0
+        ? `Masih ada ${unanswered} soal yang belum dijawab. Yakin ingin mengumpulkan jawaban sekarang?`
+        : "Yakin ingin mengumpulkan semua jawaban ujian sekarang?";
+
+      if (confirm(msg)) {
+        submitExam(false);
+      }
+    }
+
+    async function submitExam(isAutoSubmit) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      hideError(examError);
+
+      clearInterval(timerInterval);
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = isAutoSubmit ? "Waktu Habis, Mengirim..." : "Mengirim Jawaban...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            token: sessionData.token,
+            name: sessionData.name,
+            studentId: sessionData.studentId,
+            answers: answers
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        if (!data.ok) {
+          throw new Error(data.message || "Gagal menyimpan hasil ujian.");
+        }
+
+        timerBox.classList.add("hidden");
+        examScreen.classList.add("hidden");
+        resultScreen.classList.remove("hidden");
+
+        scoreDisplay.textContent = `${data.score}`;
+        resultSummary.innerHTML = `
+          <strong>Nama:</strong> ${escapeHtml(data.name)}<br />
+          <strong>NIS / NIM:</strong> ${escapeHtml(data.studentId)}<br />
+          <strong>Jawaban Benar:</strong> ${data.correct} dari ${data.total} soal
+        `;
+      } catch (err) {
+        isSubmitting = false;
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === questions.length - 1;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Kumpulkan Jawaban";
+        showError(examError, "Gagal mengirim jawaban: " + err.message);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
