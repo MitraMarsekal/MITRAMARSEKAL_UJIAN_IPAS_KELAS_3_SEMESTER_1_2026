@@ -3,208 +3,680 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CBT Google Sheets</title>
+  <title>Ujian CBT - 50 Soal (60 Menit)</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f3f4f6;
-      margin: 0;
-      padding: 24px;
-      color: #111827;
+    :root {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --border: #cbd5e1;
+      --active-bg: #eff6ff;
+      --answered-bg: #dbeafe;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
     }
-    .card {
-      max-width: 720px;
-      margin: 0 auto;
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 10px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e5e7eb;
-      padding-bottom: 14px;
-      margin-bottom: 20px;
-    }
-    .timer {
-      background: #fee2e2;
-      color: #991b1b;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-    .field {
-      margin-bottom: 14px;
-    }
-    .field label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      font-size: 14px;
-    }
-    .field input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
+
+    * {
       box-sizing: border-box;
     }
-    .option {
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    :fullscreen,
+    ::backdrop {
+      width: 100vw;
+      min-height: 100vh;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 24px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .topbar-right {
       display: flex;
       align-items: center;
-      gap: 10px;
-      border: 1px solid #d1d5db;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .timer-box {
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 8px 14px;
       border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
+      background: #e2e8f0;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
     }
-    .option.active {
-      border-color: #2563eb;
-      background: #eff6ff;
+
+    .timer-box.warning {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
     }
-    .nav {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-      gap: 10px;
+
+    .app-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 36px;
     }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .login-card {
+      max-width: 520px;
+      margin: 32px auto;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label.field-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(29, 78, 216, 0.25);
+      border-color: var(--primary);
+    }
+
     button {
-      padding: 10px 16px;
       border: none;
-      border-radius: 6px;
-      background: #2563eb;
-      color: #fff;
-      font-weight: bold;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
+      transition: background 0.15s ease, opacity 0.15s ease;
     }
+
     button:disabled {
-      background: #9ca3af;
+      opacity: 0.55;
       cursor: not-allowed;
     }
-    .btn-finish {
-      background: #059669;
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
     }
-    .error {
-      color: #b91c1c;
-      margin-top: 10px;
-      font-size: 14px;
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
     }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #cbd5e1;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #166534;
+    }
+
+    .btn-full {
+      width: 100%;
+      padding: 12px 18px;
+    }
+
+    .alert {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .exam-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .exam-grid {
+        grid-template-columns: 1fr;
+      }
+      .app-container {
+        padding: 14px;
+      }
+      .card {
+        padding: 18px;
+      }
+    }
+
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .q-text {
+      font-size: 1.1rem;
+      line-height: 1.65;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    .options-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      line-height: 1.5;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .option:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    .option.active {
+      border-color: var(--primary);
+      background: var(--active-bg);
+    }
+
+    .option input[type="radio"] {
+      margin-top: 3px;
+      accent-color: var(--primary);
+      transform: scale(1.15);
+    }
+
+    .opt-letter {
+      font-weight: 700;
+      min-width: 22px;
+    }
+
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .nav-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .num-btn {
+      padding: 8px 0;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .num-btn.answered {
+      background: var(--answered-bg);
+      border-color: #93c5fd;
+    }
+
+    .num-btn.current {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .legend {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .result-box {
+      max-width: 600px;
+      margin: 24px auto;
+      text-align: center;
+    }
+
+    .score-display {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 14px 0;
+    }
+
+    .result-summary {
+      background: var(--success-bg);
+      border: 1px solid #bbf7d0;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 18px 0;
+      line-height: 1.7;
+    }
+
     .hidden {
-      display: none;
+      display: none !important;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="top-bar">
-      <h1 style="font-size: 20px; margin: 0;">Aplikasi CBT (Google Sheets)</h1>
-      <div id="timer" class="timer hidden">60:00</div>
+  <header class="topbar">
+    <div class="brand">CBT UJIAN • 50 SOAL (A–E) • 60 MENIT</div>
+    <div class="topbar-right">
+      <div id="timerBox" class="timer-box hidden">Sisa Waktu: 60:00</div>
+      <button id="fullscreenBtn" type="button" class="btn-secondary" onclick="toggleFullscreen()">
+        Layar Penuh
+      </button>
     </div>
+  </header>
 
-    <!-- Form Login Peserta -->
-    <section id="login-section">
-      <div class="field">
-        <label for="name-input">Nama Peserta</label>
-        <input type="text" id="name-input" placeholder="Masukkan nama lengkap" required />
+  <main class="app-container">
+    <!-- Layar Masuk -->
+    <section id="loginScreen" class="card login-card">
+      <h2>Masuk Ujian</h2>
+      <p class="subtitle">
+        Jumlah soal: <strong>50 soal pilihan ganda (A–E)</strong> dengan durasi <strong>60 menit</strong>.
+      </p>
+
+      <div class="form-group">
+        <label class="field-label" for="studentName">Nama Lengkap</label>
+        <input id="studentName" type="text" placeholder="Masukkan nama lengkap" autocomplete="name" />
       </div>
-      <div class="field">
-        <label for="id-input">NIS / NIM</label>
-        <input type="text" id="id-input" placeholder="Masukkan nomor identitas" required />
+
+      <div class="form-group">
+        <label class="field-label" for="studentId">NIS / NIM / Nomor Absen</label>
+        <input id="studentId" type="text" placeholder="Masukkan NIS atau NIM" autocomplete="off" />
       </div>
-      <div class="field">
-        <label for="token-input">Token Ujian</label>
-        <input type="text" id="token-input" placeholder="Contoh: UJIAN2026" required />
+
+      <div class="form-group">
+        <label class="field-label" for="examToken">Token Ujian</label>
+        <input id="examToken" type="password" placeholder="Masukkan token ujian" autocomplete="off" />
       </div>
-      <button id="start-btn" type="button">Mulai Ujian</button>
-      <p id="status-msg" class="error hidden"></p>
+
+      <button id="startBtn" type="button" class="btn-primary btn-full" onclick="startExam()">
+        Mulai Ujian
+      </button>
+
+      <div id="loginError" class="alert hidden"></div>
     </section>
 
-    <!-- Area Ujian -->
-    <section id="exam-section" class="hidden">
-      <div id="q-counter" style="color: #6b7280; font-size: 14px; margin-bottom: 8px;"></div>
-      <h2 id="q-text" style="font-size: 18px; margin-top: 0;"></h2>
-      <div id="options-box"></div>
+    <!-- Layar Ujian -->
+    <section id="examScreen" class="hidden">
+      <div class="exam-grid">
+        <div class="card">
+          <div class="q-header">
+            <span id="qCounter">Soal 1 dari 50</span>
+            <span id="participantBadge"></span>
+          </div>
 
-      <div class="nav">
-        <button id="prev-btn" type="button">Sebelumnya</button>
-        <button id="next-btn" type="button">Berikutnya</button>
-        <button id="finish-btn" type="button" class="btn-finish">Selesai</button>
+          <div id="qText" class="q-text"></div>
+          <div id="optionsBox" class="options-box"></div>
+
+          <div class="nav-bar">
+            <div class="nav-group">
+              <button id="prevBtn" type="button" class="btn-secondary" onclick="prevQuestion()">
+                Sebelumnya
+              </button>
+              <button id="nextBtn" type="button" class="btn-secondary" onclick="nextQuestion()">
+                Berikutnya
+              </button>
+            </div>
+
+            <button id="submitBtn" type="button" class="btn-success" onclick="confirmSubmitExam()">
+              Kumpulkan Jawaban
+            </button>
+          </div>
+
+          <div id="examError" class="alert hidden"></div>
+        </div>
+
+        <aside class="card">
+          <h3>Navigasi Soal</h3>
+          <div id="answeredCount" class="subtitle" style="margin-bottom: 10px;">
+            Terjawab: 0 / 50
+          </div>
+          <div id="navGrid" class="nav-grid"></div>
+          <div class="legend">
+            • Biru tua: Soal aktif<br />
+            • Biru muda: Sudah dijawab<br />
+            • Abu-abu: Belum dijawab
+          </div>
+        </aside>
       </div>
     </section>
 
-    <!-- Area Hasil -->
-    <section id="result-section" class="hidden" style="text-align: center;">
+    <!-- Layar Hasil -->
+    <section id="resultScreen" class="card result-box hidden">
       <h2>Ujian Selesai</h2>
-      <p id="final-score" style="font-size: 24px; font-weight: bold; color: #059669;"></p>
-      <p id="final-detail"></p>
+      <p class="subtitle">Jawaban Anda telah berhasil direkam.</p>
+
+      <div id="scoreDisplay" class="score-display">0</div>
+      <div id="resultSummary" class="result-summary"></div>
+
+      <button type="button" class="btn-primary" onclick="location.reload()">
+        Kembali ke Halaman Awal
+      </button>
     </section>
-  </div>
+  </main>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw3WKkpwbOiz1D6Zm9SeGWUHV1d0WFLcpRYFLkg7oQbqcYKIhQIw-RXnPt3eZq8zPp3dQ/exec";
+    const MAX_QUESTIONS = 50;
+    const DEFAULT_DURATION_SECONDS = 3600; // 60 menit
 
-    let student = { name: "", studentId: "" };
     let questions = [];
-    let answers = {}; // { S01: "A" }
     let currentIndex = 0;
-    let remainingSeconds = 600;
-    let timerId = null;
+    let answers = {};
+    let remainingSeconds = DEFAULT_DURATION_SECONDS;
+    let timerInterval = null;
     let isSubmitting = false;
 
-    const loginSection = document.getElementById("login-section");
-    const examSection = document.getElementById("exam-section");
-    const resultSection = document.getElementById("result-section");
-    const timerEl = document.getElementById("timer");
-    const statusMsg = document.getElementById("status-msg");
+    let sessionData = {
+      name: "",
+      studentId: "",
+      token: ""
+    };
 
-    const nameInput = document.getElementById("name-input");
-    const idInput = document.getElementById("id-input");
-    const tokenInput = document.getElementById("token-input");
-    const startBtn = document.getElementById("start-btn");
+    const loginScreen = document.getElementById("loginScreen");
+    const examScreen = document.getElementById("examScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const timerBox = document.getElementById("timerBox");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
 
-    const qCounter = document.getElementById("q-counter");
-    const qText = document.getElementById("q-text");
-    const optionsBox = document.getElementById("options-box");
-    const prevBtn = document.getElementById("prev-btn");
-    const nextBtn = document.getElementById("next-btn");
-    const finishBtn = document.getElementById("finish-btn");
+    const studentNameInput = document.getElementById("studentName");
+    const studentIdInput = document.getElementById("studentId");
+    const examTokenInput = document.getElementById("examToken");
+    const startBtn = document.getElementById("startBtn");
+    const loginError = document.getElementById("loginError");
 
-    function showError(msg) {
-      statusMsg.textContent = msg;
-      statusMsg.classList.remove("hidden");
+    const qCounter = document.getElementById("qCounter");
+    const participantBadge = document.getElementById("participantBadge");
+    const qText = document.getElementById("qText");
+    const optionsBox = document.getElementById("optionsBox");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const examError = document.getElementById("examError");
+    const navGrid = document.getElementById("navGrid");
+    const answeredCount = document.getElementById("answeredCount");
+
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const resultSummary = document.getElementById("resultSummary");
+
+    function showError(el, msg) {
+      el.textContent = msg;
+      el.classList.remove("hidden");
     }
 
-    function formatClock(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    function hideError(el) {
+      el.textContent = "";
+      el.classList.add("hidden");
     }
 
-    function startTimer() {
-      timerEl.classList.remove("hidden");
-      timerEl.textContent = formatClock(remainingSeconds);
+    function formatTime(sec) {
+      const safe = Math.max(0, Number(sec) || 0);
+      const hrs = Math.floor(safe / 3600);
+      const mins = Math.floor((safe % 3600) / 60);
+      const secs = safe % 60;
 
-      timerId = setInterval(() => {
+      if (hrs > 0) {
+        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+      }
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function updateTimerDisplay() {
+      timerBox.textContent = `Sisa Waktu: ${formatTime(remainingSeconds)}`;
+      if (remainingSeconds <= 300) {
+        timerBox.classList.add("warning");
+      } else {
+        timerBox.classList.remove("warning");
+      }
+    }
+
+    function startTimer(durationSec) {
+      clearInterval(timerInterval);
+      remainingSeconds = Number(durationSec) > 0 ? Number(durationSec) : DEFAULT_DURATION_SECONDS;
+      timerBox.classList.remove("hidden");
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
         remainingSeconds--;
-        timerEl.textContent = formatClock(remainingSeconds);
+        updateTimerDisplay();
+
         if (remainingSeconds <= 0) {
-          clearInterval(timerId);
+          clearInterval(timerInterval);
           submitExam(true);
         }
-      }, 3600);
+      }, 1000);
+    }
+
+    function toggleFullscreen() {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    function syncFullscreenButton() {
+      const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      fullscreenBtn.textContent = active ? "Keluar Layar Penuh" : "Layar Penuh";
+    }
+
+    document.addEventListener("fullscreenchange", syncFullscreenButton);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenButton);
+
+    async function startExam() {
+      hideError(loginError);
+
+      const name = studentNameInput.value.trim();
+      const studentId = studentIdInput.value.trim();
+      const token = examTokenInput.value.trim();
+
+      if (!name || !studentId || !token) {
+        showError(loginError, "Nama lengkap, NIS/NIM, dan Token ujian wajib diisi.");
+        return;
+      }
+
+      startBtn.disabled = true;
+      startBtn.textContent = "Memuat 50 Soal...";
+
+      try {
+        const url = `${API_URL}?token=${encodeURIComponent(token)}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        if (!data.ok) {
+          showError(loginError, data.message || "Gagal memuat soal.");
+          return;
+        }
+
+        const loadedQuestions = Array.isArray(data.questions)
+          ? data.questions.slice(0, MAX_QUESTIONS)
+          : [];
+
+        if (!loadedQuestions.length) {
+          showError(loginError, "SOAL TIDAK DITEMUKAN.");
+          return;
+        }
+
+        questions = loadedQuestions;
+        currentIndex = 0;
+        answers = {};
+        sessionData = { name, studentId, token };
+
+        participantBadge.textContent = `${name} (${studentId})`;
+        loginScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        examScreen.classList.remove("hidden");
+
+        buildNavGrid();
+        renderQuestion();
+        startTimer(data.durationSeconds || DEFAULT_DURATION_SECONDS);
+      } catch (err) {
+        showError(loginError, "Gagal terhubung ke Google Apps Script. Periksa URL deployment.");
+      } finally {
+        startBtn.disabled = false;
+        startBtn.textContent = "Mulai Ujian";
+      }
+    }
+
+    function buildNavGrid() {
+      navGrid.innerHTML = "";
+      questions.forEach((q, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "num-btn";
+        btn.textContent = String(idx + 1);
+        btn.addEventListener("click", () => {
+          currentIndex = idx;
+          renderQuestion();
+        });
+        navGrid.appendChild(btn);
+      });
+      updateNavGrid();
+    }
+
+    function updateNavGrid() {
+      const buttons = navGrid.querySelectorAll(".num-btn");
+      let answeredTotal = 0;
+
+      questions.forEach((q, idx) => {
+        const hasAns = Boolean(answers[q.id]);
+        if (hasAns) answeredTotal++;
+
+        const btn = buttons[idx];
+        if (!btn) return;
+
+        btn.classList.toggle("answered", hasAns);
+        btn.classList.toggle("current", idx === currentIndex);
+      });
+
+      answeredCount.textContent = `Terjawab: ${answeredTotal} / ${questions.length}`;
     }
 
     function renderQuestion() {
       const q = questions[currentIndex];
+      if (!q) return;
+
       qCounter.textContent = `Soal ${currentIndex + 1} dari ${questions.length}`;
       qText.textContent = q.question;
       optionsBox.innerHTML = "";
 
-      ["A", "B", "C", "D","E"].forEach((letter) => {
-        if (!q.options[letter]) return;
+      ["A", "B", "C", "D", "E"].forEach((letter) => {
+        const optText = q.options && q.options[letter];
+        if (!optText) return;
 
         const selected = answers[q.id] === letter;
         const label = document.createElement("label");
@@ -213,126 +685,119 @@
         const radio = document.createElement("input");
         radio.type = "radio";
         radio.name = `opt-${q.id}`;
+        radio.value = letter;
         radio.checked = selected;
         radio.addEventListener("change", () => {
           answers[q.id] = letter;
           renderQuestion();
         });
 
-        const span = document.createElement("span");
-        span.textContent = `${letter}. ${q.options[letter]}`;
+        const letterSpan = document.createElement("span");
+        letterSpan.className = "opt-letter";
+        letterSpan.textContent = `${letter}.`;
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = optText;
 
         label.appendChild(radio);
-        label.appendChild(span);
+        label.appendChild(letterSpan);
+        label.appendChild(textSpan);
         optionsBox.appendChild(label);
       });
 
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === questions.length - 1;
+      updateNavGrid();
     }
 
-    async function submitExam(autoByTime = false) {
-      if (isSubmitting) return;
-      isSubmitting = true;
-      clearInterval(timerId);
-      finishBtn.disabled = true;
-      finishBtn.textContent = "Mengirim...";
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({
-            name: student.name,
-            studentId: student.studentId,
-            answers
-          })
-        });
-
-        const data = await res.json();
-        if (!data.ok) {
-          alert(data.message || "Gagal menyimpan hasil ke Google Sheets.");
-          isSubmitting = false;
-          finishBtn.disabled = false;
-          finishBtn.textContent = "Selesai";
-          return;
-        }
-
-        examSection.classList.add("hidden");
-        timerEl.classList.add("hidden");
-        resultSection.classList.remove("hidden");
-
-        document.getElementById("final-score").textContent = `Skor Anda: ${data.score}`;
-        document.getElementById("final-detail").textContent =
-          `${autoByTime ? "Waktu habis. " : ""}Jawaban benar: ${data.correct} dari ${data.total} soal.`;
-      } catch (err) {
-        alert("Terjadi gangguan jaringan saat mengirim jawaban.");
-        isSubmitting = false;
-        finishBtn.disabled = false;
-        finishBtn.textContent = "Selesai";
-      }
-    }
-
-    startBtn.addEventListener("click", async () => {
-      const name = nameInput.value.trim();
-      const studentId = idInput.value.trim();
-      const token = tokenInput.value.trim().toUpperCase();
-
-      if (!name || !studentId || !token) {
-        showError("Harap lengkapi nama, NIS/NIM, dan token ujian.");
-        return;
-      }
-
-      startBtn.disabled = true;
-      startBtn.textContent = "Memuat soal...";
-      statusMsg.classList.add("hidden");
-
-      try {
-        const url = `${API_URL}?token=${encodeURIComponent(token)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (!data.ok || !Array.isArray(data.questions) || data.questions.length === 0) {
-          showError(data.message || "Soal tidak tersedia atau token salah.");
-          startBtn.disabled = false;
-          startBtn.textContent = "Mulai Ujian";
-          return;
-        }
-
-        student = { name, studentId };
-        questions = data.questions;
-        remainingSeconds = Number(data.durationSeconds) || 3600;
-
-        loginSection.classList.add("hidden");
-        examSection.classList.remove("hidden");
-        renderQuestion();
-        startTimer();
-      } catch (err) {
-        showError("Gagal terhubung ke Google Apps Script. Periksa URL deployment.");
-        startBtn.disabled = false;
-        startBtn.textContent = "Mulai Ujian";
-      }
-    });
-
-    prevBtn.addEventListener("click", () => {
+    function prevQuestion() {
       if (currentIndex > 0) {
         currentIndex--;
         renderQuestion();
       }
-    });
+    }
 
-    nextBtn.addEventListener("click", () => {
+    function nextQuestion() {
       if (currentIndex < questions.length - 1) {
         currentIndex++;
         renderQuestion();
       }
-    });
+    }
 
-    finishBtn.addEventListener("click", () => {
-      if (confirm("Yakin ingin mengumpulkan jawaban sekarang?")) {
+    function confirmSubmitExam() {
+      const answeredTotal = questions.filter((q) => Boolean(answers[q.id])).length;
+      const unanswered = questions.length - answeredTotal;
+      const msg = unanswered > 0
+        ? `Masih ada ${unanswered} soal yang belum dijawab. Yakin ingin mengumpulkan jawaban sekarang?`
+        : "Yakin ingin mengumpulkan semua jawaban ujian sekarang?";
+
+      if (confirm(msg)) {
         submitExam(false);
       }
-    });
+    }
+
+    async function submitExam(isAutoSubmit) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      hideError(examError);
+
+      clearInterval(timerInterval);
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = isAutoSubmit ? "Waktu Habis, Mengirim..." : "Mengirim Jawaban...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify({
+            token: sessionData.token,
+            name: sessionData.name,
+            studentId: sessionData.studentId,
+            answers: answers
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        if (!data.ok) {
+          throw new Error(data.message || "Gagal menyimpan hasil ujian.");
+        }
+
+        timerBox.classList.add("hidden");
+        examScreen.classList.add("hidden");
+        resultScreen.classList.remove("hidden");
+
+        scoreDisplay.textContent = `${data.score}`;
+        resultSummary.innerHTML = `
+          <strong>Nama:</strong> ${escapeHtml(data.name)}<br />
+          <strong>NIS / NIM:</strong> ${escapeHtml(data.studentId)}<br />
+          <strong>Jawaban Benar:</strong> ${data.correct} dari ${data.total} soal
+        `;
+      } catch (err) {
+        isSubmitting = false;
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === questions.length - 1;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Kumpulkan Jawaban";
+        showError(examError, "Gagal mengirim jawaban: " + err.message);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
   </script>
 </body>
 </html>
