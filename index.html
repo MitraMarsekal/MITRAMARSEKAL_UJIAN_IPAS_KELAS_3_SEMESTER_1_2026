@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CBT Google Sheets</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 24px;
+      color: #111827;
+    }
+    .card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .timer {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .option.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .btn-finish {
+      background: #059669;
+    }
+    .error {
+      color: #b91c1c;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-bar">
+      <h1 style="font-size: 20px; margin: 0;">Aplikasi CBT (Google Sheets)</h1>
+      <div id="timer" class="timer hidden">10:00</div>
+    </div>
+
+    <!-- Form Login Peserta -->
+    <section id="login-section">
+      <div class="field">
+        <label for="name-input">Nama Peserta</label>
+        <input type="text" id="name-input" placeholder="Masukkan nama lengkap" required />
+      </div>
+      <div class="field">
+        <label for="id-input">NIS / NIM</label>
+        <input type="text" id="id-input" placeholder="Masukkan nomor identitas" required />
+      </div>
+      <div class="field">
+        <label for="token-input">Token Ujian</label>
+        <input type="text" id="token-input" placeholder="Contoh: UJIAN2026" required />
+      </div>
+      <button id="start-btn" type="button">Mulai Ujian</button>
+      <p id="status-msg" class="error hidden"></p>
+    </section>
+
+    <!-- Area Ujian -->
+    <section id="exam-section" class="hidden">
+      <div id="q-counter" style="color: #6b7280; font-size: 14px; margin-bottom: 8px;"></div>
+      <h2 id="q-text" style="font-size: 18px; margin-top: 0;"></h2>
+      <div id="options-box"></div>
+
+      <div class="nav">
+        <button id="prev-btn" type="button">Sebelumnya</button>
+        <button id="next-btn" type="button">Berikutnya</button>
+        <button id="finish-btn" type="button" class="btn-finish">Kumpulkan</button>
+      </div>
+    </section>
+
+    <!-- Area Hasil -->
+    <section id="result-section" class="hidden" style="text-align: center;">
+      <h2>Ujian Selesai</h2>
+      <p id="final-score" style="font-size: 24px; font-weight: bold; color: #059669;"></p>
+      <p id="final-detail"></p>
+    </section>
+  </div>
+
+  <script>
+    const API_URL = "TEMPEL_WEB_APP_URL_KAMU_DI_SINI";
+
+    let student = { name: "", studentId: "" };
+    let questions = [];
+    let answers = {}; // { S01: "A" }
+    let currentIndex = 0;
+    let remainingSeconds = 600;
+    let timerId = null;
+    let isSubmitting = false;
+
+    const loginSection = document.getElementById("login-section");
+    const examSection = document.getElementById("exam-section");
+    const resultSection = document.getElementById("result-section");
+    const timerEl = document.getElementById("timer");
+    const statusMsg = document.getElementById("status-msg");
+
+    const nameInput = document.getElementById("name-input");
+    const idInput = document.getElementById("id-input");
+    const tokenInput = document.getElementById("token-input");
+    const startBtn = document.getElementById("start-btn");
+
+    const qCounter = document.getElementById("q-counter");
+    const qText = document.getElementById("q-text");
+    const optionsBox = document.getElementById("options-box");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const finishBtn = document.getElementById("finish-btn");
+
+    function showError(msg) {
+      statusMsg.textContent = msg;
+      statusMsg.classList.remove("hidden");
+    }
+
+    function formatClock(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function startTimer() {
+      timerEl.classList.remove("hidden");
+      timerEl.textContent = formatClock(remainingSeconds);
+
+      timerId = setInterval(() => {
+        remainingSeconds--;
+        timerEl.textContent = formatClock(remainingSeconds);
+        if (remainingSeconds <= 0) {
+          clearInterval(timerId);
+          submitExam(true);
+        }
+      }, 1000);
+    }
+
+    function renderQuestion() {
+      const q = questions[currentIndex];
+      qCounter.textContent = `Soal ${currentIndex + 1} dari ${questions.length}`;
+      qText.textContent = q.question;
+      optionsBox.innerHTML = "";
+
+      ["A", "B", "C", "D"].forEach((letter) => {
+        if (!q.options[letter]) return;
+
+        const selected = answers[q.id] === letter;
+        const label = document.createElement("label");
+        label.className = `option ${selected ? "active" : ""}`;
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = `opt-${q.id}`;
+        radio.checked = selected;
+        radio.addEventListener("change", () => {
+          answers[q.id] = letter;
+          renderQuestion();
+        });
+
+        const span = document.createElement("span");
+        span.textContent = `${letter}. ${q.options[letter]}`;
+
+        label.appendChild(radio);
+        label.appendChild(span);
+        optionsBox.appendChild(label);
+      });
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === questions.length - 1;
+    }
+
+    async function submitExam(autoByTime = false) {
+      if (isSubmitting) return;
+      isSubmitting = true;
+      clearInterval(timerId);
+      finishBtn.disabled = true;
+      finishBtn.textContent = "Mengirim...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            name: student.name,
+            studentId: student.studentId,
+            answers
+          })
+        });
+
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.message || "Gagal menyimpan hasil ke Google Sheets.");
+          isSubmitting = false;
+          finishBtn.disabled = false;
+          finishBtn.textContent = "Kumpulkan";
+          return;
+        }
+
+        examSection.classList.add("hidden");
+        timerEl.classList.add("hidden");
+        resultSection.classList.remove("hidden");
+
+        document.getElementById("final-score").textContent = `Skor Anda: ${data.score}`;
+        document.getElementById("final-detail").textContent =
+          `${autoByTime ? "Waktu habis. " : ""}Jawaban benar: ${data.correct} dari ${data.total} soal.`;
+      } catch (err) {
+        alert("Terjadi gangguan jaringan saat mengirim jawaban.");
+        isSubmitting = false;
+        finishBtn.disabled = false;
+        finishBtn.textContent = "Kumpulkan";
+      }
+    }
+
+    startBtn.addEventListener("click", async () => {
+      const name = nameInput.value.trim();
+      const studentId = idInput.value.trim();
+      const token = tokenInput.value.trim().toUpperCase();
+
+      if (!name || !studentId || !token) {
+        showError("Harap lengkapi nama, NIS/NIM, dan token ujian.");
+        return;
+      }
+
+      startBtn.disabled = true;
+      startBtn.textContent = "Memuat soal...";
+      statusMsg.classList.add("hidden");
+
+      try {
+        const url = `${API_URL}?token=${encodeURIComponent(token)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.ok || !Array.isArray(data.questions) || data.questions.length === 0) {
+          showError(data.message || "Soal tidak tersedia atau token salah.");
+          startBtn.disabled = false;
+          startBtn.textContent = "Mulai Ujian";
+          return;
+        }
+
+        student = { name, studentId };
+        questions = data.questions;
+        remainingSeconds = Number(data.durationSeconds) || 600;
+
+        loginSection.classList.add("hidden");
+        examSection.classList.remove("hidden");
+        renderQuestion();
+        startTimer();
+      } catch (err) {
+        showError("Gagal terhubung ke Google Apps Script. Periksa URL deployment.");
+        startBtn.disabled = false;
+        startBtn.textContent = "Mulai Ujian";
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      }
+    });
+
+    finishBtn.addEventListener("click", () => {
+      if (confirm("Yakin ingin mengumpulkan jawaban sekarang?")) {
+        submitExam(false);
+      }
+    });
+  </script>
+</body>
+</html>
