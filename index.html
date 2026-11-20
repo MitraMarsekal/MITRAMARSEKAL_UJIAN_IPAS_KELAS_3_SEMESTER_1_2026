@@ -254,7 +254,7 @@
           alert(data.message || "Gagal menyimpan hasil ke Google Sheets.");
           isSubmitting = false;
           finishBtn.disabled = false;
-          finishBtn.textContent = "Kumpulkan";
+          finishBtn.textContent = "Selesai";
           return;
         }
 
@@ -301,7 +301,7 @@
 
         student = { name, studentId };
         questions = data.questions;
-        remainingSeconds = Number(data.durationSeconds) || 600;
+        remainingSeconds = Number(data.durationSeconds) || 360;
 
         loginSection.classList.add("hidden");
         examSection.classList.remove("hidden");
