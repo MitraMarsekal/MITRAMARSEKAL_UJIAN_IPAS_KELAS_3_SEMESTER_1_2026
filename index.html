@@ -269,7 +269,7 @@
         alert("Terjadi gangguan jaringan saat mengirim jawaban.");
         isSubmitting = false;
         finishBtn.disabled = false;
-        finishBtn.textContent = "Kumpulkan";
+        finishBtn.textContent = "Selesai";
       }
     }
 
@@ -301,7 +301,7 @@
 
         student = { name, studentId };
         questions = data.questions;
-        remainingSeconds = Number(data.durationSeconds) || 360;
+        remainingSeconds = Number(data.durationSeconds) || 3600;
 
         loginSection.classList.add("hidden");
         examSection.classList.remove("hidden");
