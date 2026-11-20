@@ -428,31 +428,45 @@
           <div id="examError" class="alert hidden"></div>
         </div>
 
-CSS
 img,
 .q-image,
 .soal-img {
   display: block;
   max-width: 100%;
+  max-height: 360px;
+  width: auto;
   height: auto;
+  margin: 12px auto;
   object-fit: contain;
+  border-radius: 8px;
 }
 
+/* Penyesuaian saat masuk mode layar penuh */
 :fullscreen img,
 :fullscreen .q-image,
 :fullscreen .soal-img,
 :-webkit-full-screen img,
 :-webkit-full-screen .q-image,
 :-webkit-full-screen .soal-img {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  max-width: 100% !important;
-  max-height: 60vh !important;
-  width: auto !important;
-  height: auto !important;
-  position: relative;
-  z-index: 10;
+  max-width: 90%;
+  max-height: 55vh;
+  width: auto;
+  height: auto;
+  margin: 12px auto;
+  object-fit: contain;
+}
+
+/* Penyesuaian di layar HP / kecil */
+@media (max-width: 640px) {
+  img,
+  .q-image,
+  .soal-img,
+  :fullscreen img,
+  :fullscreen .q-image,
+  :fullscreen .soal-img {
+    max-width: 100%;
+    max-height: 38vh;
+  }
 }
 
         <aside class="card">
