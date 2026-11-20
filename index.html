@@ -428,6 +428,27 @@
           <div id="examError" class="alert hidden"></div>
         </div>
 
+img,
+.q-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 12px 0;
+  border-radius: 8px;
+}
+
+:fullscreen img,
+:fullscreen .q-image {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-height: 65vh;
+  width: auto;
+  max-width: 100%;
+  position: relative;
+  z-index: 5;
+}
+
         <aside class="card">
           <h3>Navigasi Soal</h3>
           <div id="answeredCount" class="subtitle" style="margin-bottom: 10px;">
@@ -676,7 +697,6 @@
 
       ["A", "B", "C", "D", "E"].forEach((letter) => {
         const optText = q.options && q.options[letter];
-        if (!optText) return;
 
         const selected = answers[q.id] === letter;
         const label = document.createElement("label");
