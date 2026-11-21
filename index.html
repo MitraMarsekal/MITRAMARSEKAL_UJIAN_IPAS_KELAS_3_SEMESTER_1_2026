@@ -1,865 +1,513 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CBT PILIHAN GANDA • 50 SOAL (A–E) • 60 MENIT</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBT Ujian Online - Kelas 3 Semester 1</title>
   <style>
     :root {
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
+      --success: #16a34a;
+      --warning: #eab308;
+      --danger: #dc2626;
       --bg: #f1f5f9;
       --card: #ffffff;
       --text: #0f172a;
       --muted: #64748b;
-      --primary: #1d4ed8;
-      --primary-hover: #1e40af;
       --border: #cbd5e1;
-      --active-bg: #eff6ff;
-      --answered-bg: #dbeafe;
-      --danger: #dc2626;
-      --danger-bg: #fef2f2;
-      --success: #15803d;
-      --success-bg: #f0fdf4;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+    /* Halaman Login */
+    #login-screen {
+      display: flex; align-items: center; justify-content: center;
+      height: 100vh; padding: 20px; background: linear-gradient(135deg, #1e3a8a, #2563eb);
     }
-
-    :fullscreen,
-    ::backdrop,
-    :-webkit-full-screen {
-      width: 100vw;
-      min-height: 100vh;
-      background: var(--bg);
-      overflow-y: auto;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 24px;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .brand {
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .timer-box {
-      font-weight: 700;
-      font-size: 1rem;
-      padding: 8px 14px;
-      border-radius: 8px;
-      background: #e2e8f0;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .timer-box.warning {
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: 1px solid #fecaca;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px 24px 36px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-    }
-
     .login-card {
-      max-width: 520px;
-      margin: 32px auto;
+      background: var(--card); padding: 32px; border-radius: 16px;
+      width: 100%; max-width: 440px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+    }
+    .login-card h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 6px; text-align: center; }
+    .login-card p { font-size: 0.9rem; color: var(--muted); text-align: center; margin-bottom: 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 1rem;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+    .info-box {
+      background: #eff6ff; border-left: 4px solid var(--primary); padding: 12px;
+      font-size: 0.85rem; color: #1e3a8a; border-radius: 6px; margin-bottom: 20px;
     }
 
-    h1,
-    h2,
-    h3 {
-      margin-top: 0;
+    /* Tombol Umum */
+    .btn {
+      padding: 12px 20px; border: none; border-radius: 8px; font-size: 0.95rem;
+      font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
+    .btn-primary { background: var(--primary); color: #fff; width: 100%; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .subtitle {
-      color: var(--muted);
-      margin-bottom: 20px;
-      line-height: 1.5;
+    /* Halaman Ujian (Layar Penuh) */
+    #exam-screen { display: none; flex-direction: column; height: 100vh; }
+    header {
+      background: var(--primary); color: #fff; padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    .form-group {
-      margin-bottom: 16px;
+    .header-info h2 { font-size: 1.1rem; }
+    .header-info span { font-size: 0.85rem; opacity: 0.9; }
+    .timer-box {
+      background: rgba(0,0,0,0.25); padding: 8px 16px; border-radius: 8px;
+      font-size: 1.25rem; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
     }
+    .timer-danger { background: var(--danger) !important; animation: pulse 1s infinite; }
 
-    label.field-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
+    .exam-body { display: flex; flex: 1; overflow: hidden; padding: 20px; gap: 20px; }
+    .question-panel {
+      flex: 3; background: var(--card); border-radius: 12px; padding: 24px;
+      display: flex; flex-direction: column; overflow-y: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
-      color: var(--text);
-      background: #fff;
-    }
-
-    input:focus {
-      outline: 2px solid rgba(29, 78, 216, 0.25);
-      border-color: var(--primary);
-    }
-
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s ease, opacity 0.15s ease;
-    }
-
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: var(--primary-hover);
-    }
-
-    .btn-secondary {
-      background: #e2e8f0;
-      color: var(--text);
-    }
-
-    .btn-secondary:hover:not(:disabled) {
-      background: #cbd5e1;
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: #fff;
-    }
-
-    .btn-success:hover:not(:disabled) {
-      background: #166534;
-    }
-
-    .btn-full {
-      width: 100%;
-      padding: 12px 18px;
-    }
-
-    .alert {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 0.92rem;
-      background: var(--danger-bg);
-      color: var(--danger);
-      border: 1px solid #fecaca;
-    }
-
-    .exam-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
-      gap: 20px;
-      align-items: start;
-    }
-
-    @media (max-width: 960px) {
-      .exam-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .app-container {
-        padding: 14px;
-      }
-
-      .card {
-        padding: 18px;
-      }
-    }
-
     .q-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #e2e8f0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 14px; border-bottom: 1.5px solid var(--border); margin-bottom: 20px;
+    }
+    .q-badge { background: #dbeafe; color: var(--primary); padding: 6px 14px; border-radius: 20px; font-weight: 700; }
+    .q-text { font-size: 1.15rem; line-height: 1.6; margin-bottom: 24px; font-weight: 500; }
+
+    .options-list { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .option-item {
+      display: flex; align-items: center; padding: 14px 16px; border: 2px solid var(--border);
+      border-radius: 10px; cursor: pointer; transition: 0.15s; gap: 14px;
+    }
+    .option-item:hover { border-color: var(--primary); background: #f8fafc; }
+    .option-item.selected { border-color: var(--primary); background: #eff6ff; }
+    .option-letter {
+      width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; color: var(--text);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;
+    }
+    .option-item.selected .option-letter { background: var(--primary); color: #fff; }
+    .option-text { font-size: 1.05rem; }
+
+    .q-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 20px; border-top: 1.5px solid var(--border); margin-top: 20px;
     }
 
-    .q-text {
-      font-size: 1.1rem;
-      line-height: 1.65;
-      margin-bottom: 16px;
-      white-space: pre-line;
+    /* Panel Navigasi Nomor Soal */
+    .nav-panel {
+      flex: 1; min-width: 280px; max-width: 340px; background: var(--card); border-radius: 12px;
+      padding: 20px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-
-    img,
-    .q-image,
-    .soal-img {
-      display: block;
-      max-width: 100%;
-      max-height: 360px;
-      width: auto;
-      height: auto;
-      margin: 12px auto 18px;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    :fullscreen img,
-    :fullscreen .q-image,
-    :fullscreen .soal-img,
-    :-webkit-full-screen img,
-    :-webkit-full-screen .q-image,
-    :-webkit-full-screen .soal-img {
-      display: block !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      max-width: 90% !important;
-      max-height: 55vh !important;
-      width: auto !important;
-      height: auto !important;
-      margin: 12px auto 18px !important;
-      object-fit: contain !important;
-      position: relative;
-      z-index: 5;
-    }
-
-    @media (max-width: 640px) {
-      img,
-      .q-image,
-      .soal-img,
-      :fullscreen img,
-      :fullscreen .q-image,
-      :fullscreen .soal-img,
-      :-webkit-full-screen img,
-      :-webkit-full-screen .q-image,
-      :-webkit-full-screen .soal-img {
-        max-width: 100% !important;
-        max-height: 38vh !important;
-      }
-    }
-
-    .options-box {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .option {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 13px 16px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #fff;
-      cursor: pointer;
-      line-height: 1.5;
-      transition: border-color 0.15s ease, background 0.15s ease;
-    }
-
-    .option:hover {
-      border-color: var(--primary);
-      background: #f8fafc;
-    }
-
-    .option.active {
-      border-color: var(--primary);
-      background: var(--active-bg);
-    }
-
-    .option input[type="radio"] {
-      margin-top: 3px;
-      accent-color: var(--primary);
-      transform: scale(1.15);
-    }
-
-    .opt-letter {
-      font-weight: 700;
-      min-width: 22px;
-    }
-
-    .nav-bar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    .nav-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
+    .nav-panel h3 { font-size: 1rem; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
     .nav-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-top: 12px;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+      overflow-y: auto; flex: 1; align-content: start; padding-right: 4px;
     }
-
-    .num-btn {
-      padding: 8px 0;
-      font-size: 0.85rem;
-      border-radius: 6px;
-      background: #f1f5f9;
-      color: var(--text);
-      border: 1px solid var(--border);
+    .nav-btn {
+      aspect-ratio: 1; border: 1.5px solid var(--border); background: #fff; border-radius: 8px;
+      font-weight: 700; cursor: pointer; font-size: 0.9rem;
     }
+    .nav-btn.active { border: 2.5px solid var(--primary); transform: scale(1.05); }
+    .nav-btn.answered { background: var(--success); color: #fff; border-color: var(--success); }
+    .nav-btn.doubt { background: var(--warning); color: #fff; border-color: var(--warning); }
 
-    .num-btn.answered {
-      background: var(--answered-bg);
-      border-color: #93c5fd;
+    .legend { display: flex; gap: 12px; font-size: 0.8rem; margin: 14px 0; flex-wrap: wrap; }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+    /* Halaman Hasil */
+    #result-screen {
+      display: none; align-items: center; justify-content: center; height: 100vh; padding: 20px; background: var(--bg);
     }
-
-    .num-btn.current {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
+    .result-card {
+      background: var(--card); padding: 36px; border-radius: 16px; text-align: center;
+      max-width: 460px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
-
-    .legend {
-      margin-top: 14px;
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.6;
+    .score-circle {
+      width: 130px; height: 130px; border-radius: 50%; background: #eff6ff; border: 6px solid var(--primary);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 20px auto;
     }
+    .score-circle strong { font-size: 2.4rem; color: var(--primary); }
+    .result-details { text-align: left; background: #f8fafc; padding: 16px; border-radius: 10px; margin-bottom: 24px; }
+    .result-details p { margin-bottom: 8px; font-size: 0.95rem; display: flex; justify-content: space-between; }
 
-    .result-box {
-      max-width: 600px;
-      margin: 24px auto;
-      text-align: center;
+    /* Loading Overlay */
+    #loader {
+      position: fixed; inset: 0; background: rgba(255,255,255,0.9);
+      display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
     }
-
-    .score-display {
-      font-size: 2.6rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin: 14px 0;
+    .spinner {
+      width: 48px; height: 48px; border: 5px solid #e2e8f0; border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 50% { opacity: 0.7; } }
 
-    .result-summary {
-      background: var(--success-bg);
-      border: 1px solid #bbf7d0;
-      color: var(--text);
-      border-radius: 10px;
-      padding: 16px;
-      margin: 18px 0;
-      line-height: 1.7;
-    }
-
-    .hidden {
-      display: none !important;
+    @media (max-width: 768px) {
+      body { overflow: auto; }
+      .exam-body { flex-direction: column; overflow: visible; }
+      .nav-panel { max-width: 100%; }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">CBT PILIHAN GANDA • 50 SOAL (A–E) • 60 MENIT</div>
-    <div class="topbar-right">
-      <div id="timerBox" class="timer-box hidden">Sisa Waktu: 60:00</div>
-      <button id="fullscreenBtn" type="button" class="btn-secondary" onclick="toggleFullscreen()">
-        Layar Penuh
-      </button>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <p id="loader-text" style="font-weight: 600; color: #1e3a8a;">Memuat soal ujian...</p>
+  </div>
+
+  <!-- 1. Layar Login / Identitas Peserta -->
+  <div id="login-screen">
+    <div class="login-card">
+      <h1>UJIAN CBT ONLINE</h1>
+      <p>Kelas 3 Semester 1</p>
+
+      <div class="form-group">
+        <label for="nama">Nama Lengkap Peserta</label>
+        <input type="text" id="nama" placeholder="Masukkan nama lengkap..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="id_peserta">Nomor / ID Peserta</label>
+        <input type="text" id="id_peserta" placeholder="Contoh: 03-001" required>
+      </div>
+
+      <div class="form-group">
+        <label for="mapel">Pilih Mata Pelajaran</label>
+        <select id="mapel">
+          <option value="IPAS">IPAS</option>
+          <option value="Bahasa Sunda">Bahasa Sunda</option>
+          <option value="Matematika">Matematika</option>
+          <option value="Pancasila">Pancasila</option>
+          <option value="Seni Budaya">Seni Budaya</option>
+          <option value="PJOK">PJOK</option>
+          <option value="PABP">PABP</option>
+        </select>
+      </div>
+
+      <div class="info-box">
+        <strong>Ketentuan Ujian:</strong><br>
+        • Jumlah soal: 50 Pilihan Ganda (A – E)<br>
+        • Durasi waktu: 60 Menit<br>
+        • Ujian otomatis berjalan dalam <strong>Mode Layar Penuh</strong>.
+      </div>
+
+      <button class="btn btn-primary" onclick="mulaiUjian()">Mulai Ujian (Layar Penuh)</button>
     </div>
-  </header>
+  </div>
 
-  <main class="app-container">
-    <section id="loginScreen" class="card login-card">
-      <h2>Masuk Ujian</h2>
-      <p class="subtitle">
-        Jumlah soal: <strong>50 soal pilihan ganda (A–E)</strong> dengan durasi <strong>60 menit</strong>.
-      </p>
-
-      <div class="form-group">
-        <label class="field-label" for="studentName">Nama Lengkap</label>
-        <input id="studentName" type="text" placeholder="Masukkan nama lengkap" autocomplete="name" />
+  <!-- 2. Layar Utama Ujian -->
+  <div id="exam-screen">
+    <header>
+      <div class="header-info">
+        <h2 id="header-mapel">MATA PELAJARAN</h2>
+        <span id="header-peserta">Peserta: -</span>
       </div>
-
-      <div class="form-group">
-        <label class="field-label" for="studentId">NIS / NIM / Nomor Absen</label>
-        <input id="studentId" type="text" placeholder="Masukkan NIS atau NIM" autocomplete="off" />
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.85rem;" onclick="aktifkanFullscreen()">⛶ Layar Penuh</button>
+        <div class="timer-box" id="timer-box">
+          ⏱ <span id="timer-display">60:00</span>
+        </div>
       </div>
+    </header>
 
-      <div class="form-group">
-        <label class="field-label" for="examToken">Token Ujian</label>
-        <input id="examToken" type="password" placeholder="Masukkan token ujian" autocomplete="off" />
-      </div>
-
-      <button id="startBtn" type="button" class="btn-primary btn-full" onclick="startExam()">
-        Mulai Ujian
-      </button>
-
-      <div id="loginError" class="alert hidden"></div>
-    </section>
-
-    <section id="examScreen" class="hidden">
-      <div class="exam-grid">
-        <div class="card">
-          <div class="q-header">
-            <span id="qCounter">Soal 1 dari 50</span>
-            <span id="participantBadge"></span>
-          </div>
-
-          <div id="qText" class="q-text"></div>
-          <img id="qImage" class="q-image soal-img hidden" alt="Gambar soal" />
-          <div id="optionsBox" class="options-box"></div>
-
-          <div class="nav-bar">
-            <div class="nav-group">
-              <button id="prevBtn" type="button" class="btn-secondary" onclick="prevQuestion()">
-                Sebelumnya
-              </button>
-              <button id="nextBtn" type="button" class="btn-secondary" onclick="nextQuestion()">
-                Berikutnya
-              </button>
-            </div>
-
-            <button id="submitBtn" type="button" class="btn-success" onclick="confirmSubmitExam()">
-              Kumpulkan Jawaban
-            </button>
-          </div>
-
-          <div id="examError" class="alert hidden"></div>
+    <div class="exam-body">
+      <!-- Panel Soal -->
+      <div class="question-panel">
+        <div class="q-header">
+          <span class="q-badge" id="q-number">Soal No. 1</span>
+          <span style="color: var(--muted); font-size: 0.9rem;" id="q-progress">Terjawab: 0 / 50</span>
         </div>
 
-        <aside class="card">
-          <h3>Navigasi Soal</h3>
-          <div id="answeredCount" class="subtitle" style="margin-bottom: 10px;">
-            Terjawab: 0 / 50
-          </div>
-          <div id="navGrid" class="nav-grid"></div>
-          <div class="legend">
-            • Biru tua: Soal aktif<br />
-            • Biru muda: Sudah dijawab<br />
-            • Abu-abu: Belum dijawab
-          </div>
-        </aside>
+        <div class="q-text" id="q-text">Memuat pertanyaan...</div>
+
+        <div class="options-list" id="options-container"></div>
+
+        <div class="q-footer">
+          <button class="btn btn-secondary" id="btn-prev" onclick="navigasiSoal(-1)">← Sebelumnya</button>
+          <button class="btn btn-warning" onclick="toggleRagu()">Ragu-Ragu</button>
+          <button class="btn btn-primary" style="width: auto;" id="btn-next" onclick="navigasiSoal(1)">Selanjutnya →</button>
+        </div>
       </div>
-    </section>
 
-    <section id="resultScreen" class="card result-box hidden">
-      <h2>Ujian Selesai</h2>
-      <p class="subtitle">Jawaban Anda telah berhasil direkam.</p>
+      <!-- Panel Nomor Soal -->
+      <div class="nav-panel">
+        <h3>Navigasi Nomor Soal</h3>
+        <div class="nav-grid" id="nav-grid"></div>
 
-      <div id="scoreDisplay" class="score-display">0</div>
-      <div id="resultSummary" class="result-summary"></div>
+        <div class="legend">
+          <span><i class="dot" style="background: var(--success);"></i> Dijawab</span>
+          <span><i class="dot" style="background: var(--warning);"></i> Ragu</span>
+          <span><i class="dot" style="background: #fff; border: 1px solid var(--border);"></i> Kosong</span>
+        </div>
 
-      <button type="button" class="btn-primary" onclick="location.reload()">
-        Kembali ke Halaman Awal
-      </button>
-    </section>
-  </main>
+        <button class="btn btn-danger" style="width: 100%; margin-top: auto;" onclick="konfirmasiSelesai()">Selesai & Kirim Jawaban</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Layar Hasil -->
+  <div id="result-screen">
+    <div class="result-card">
+      <h2 style="color: var(--success);">Ujian Telah Selesai!</h2>
+      <p style="color: var(--muted); margin-top: 4px;">Jawaban Anda berhasil disimpan ke sistem.</p>
+
+      <div class="score-circle">
+        <span style="font-size: 0.85rem; color: var(--muted);">NILAI AKHIR</span>
+        <strong id="res-skor">0</strong>
+      </div>
+
+      <div class="result-details">
+        <p><span>Nama Peserta:</span> <strong id="res-nama">-</strong></p>
+        <p><span>ID Peserta:</span> <strong id="res-id">-</strong></p>
+        <p><span>Mata Pelajaran:</span> <strong id="res-mapel">-</strong></p>
+        <p><span>Jawaban Benar:</span> <strong id="res-benar">0 dari 50</strong></p>
+      </div>
+
+      <button class="btn btn-primary" onclick="location.reload()">Kembali ke Halaman Awal</button>
+    </div>
+  </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw3WKkpwbOiz1D6Zm9SeGWUHV1d0WFLcpRYFLkg7oQbqcYKIhQIw-RXnPt3eZq8zPp3dQ/exec";
-    const MAX_QUESTIONS = 50;
-    const DEFAULT_DURATION_SECONDS = 3600; // 60 menit
-
-    let questions = [];
+    let daftarSoal = [];
     let currentIndex = 0;
-    let answers = {};
-    let remainingSeconds = DEFAULT_DURATION_SECONDS;
+    let jawabanUser = {};
+    let raguUser = {};
+    let sisaDetik = 60 * 60; // 60 Menit
     let timerInterval = null;
-    let isSubmitting = false;
+    let ujianSelesai = false;
 
-    let sessionData = {
-      name: "",
-      studentId: "",
-      token: ""
-    };
+    let dataPeserta = { nama: '', id: '', mapel: '' };
 
-    const loginScreen = document.getElementById("loginScreen");
-    const examScreen = document.getElementById("examScreen");
-    const resultScreen = document.getElementById("resultScreen");
-    const timerBox = document.getElementById("timerBox");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-
-    const studentNameInput = document.getElementById("studentName");
-    const studentIdInput = document.getElementById("studentId");
-    const examTokenInput = document.getElementById("examToken");
-    const startBtn = document.getElementById("startBtn");
-    const loginError = document.getElementById("loginError");
-
-    const qCounter = document.getElementById("qCounter");
-    const participantBadge = document.getElementById("participantBadge");
-    const qText = document.getElementById("qText");
-    const qImage = document.getElementById("qImage");
-    const optionsBox = document.getElementById("optionsBox");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const submitBtn = document.getElementById("submitBtn");
-    const examError = document.getElementById("examError");
-    const navGrid = document.getElementById("navGrid");
-    const answeredCount = document.getElementById("answeredCount");
-
-    const scoreDisplay = document.getElementById("scoreDisplay");
-    const resultSummary = document.getElementById("resultSummary");
-
-    function showError(el, msg) {
-      el.textContent = msg;
-      el.classList.remove("hidden");
+    function showLoader(show, text = 'Memuat...') {
+      document.getElementById('loader-text').innerText = text;
+      document.getElementById('loader').style.display = show ? 'flex' : 'none';
     }
 
-    function hideError(el) {
-      el.textContent = "";
-      el.classList.add("hidden");
-    }
-
-    function formatTime(sec) {
-      const safe = Math.max(0, Number(sec) || 0);
-      const hrs = Math.floor(safe / 3600);
-      const mins = Math.floor((safe % 3600) / 60);
-      const secs = safe % 60;
-
-      if (hrs > 0) {
-        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-      }
-      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
-
-    function updateTimerDisplay() {
-      timerBox.textContent = `Sisa Waktu: ${formatTime(remainingSeconds)}`;
-      if (remainingSeconds <= 300) {
-        timerBox.classList.add("warning");
-      } else {
-        timerBox.classList.remove("warning");
+    function aktifkanFullscreen() {
+      const elem = document.documentElement;
+      if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
       }
     }
 
-    function startTimer(durationSec) {
-      clearInterval(timerInterval);
-      remainingSeconds = Number(durationSec) > 0 ? Number(durationSec) : DEFAULT_DURATION_SECONDS;
-      timerBox.classList.remove("hidden");
+    function mulaiUjian() {
+      const nama = document.getElementById('nama').value.trim();
+      const id = document.getElementById('id_peserta').value.trim();
+      const mapel = document.getElementById('mapel').value;
+
+      if (!nama || !id) {
+        alert('Harap isi Nama Lengkap dan ID Peserta terlebih dahulu!');
+        return;
+      }
+
+      dataPeserta = { nama, id, mapel };
+      aktifkanFullscreen();
+      showLoader(true, 'Mengambil 50 soal ' + mapel + '...');
+
+      google.script.run
+        .withSuccessHandler(function(soal) {
+          showLoader(false);
+          if (!soal || soal.length === 0) {
+            alert('Soal untuk mata pelajaran ' + mapel + ' belum tersedia di spreadsheet.');
+            return;
+          }
+          daftarSoal = soal;
+          siapkanTampilanUjian();
+        })
+        .withFailureHandler(function(err) {
+          showLoader(false);
+          alert('Terjadi kesalahan: ' + err.message);
+        })
+        .getSoalUjian(mapel);
+    }
+
+    function siapkanTampilanUjian() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('exam-screen').style.display = 'flex';
+
+      document.getElementById('header-mapel').innerText = 'UJIAN ' + dataPeserta.mapel.toUpperCase();
+      document.getElementById('header-peserta').innerText = `${dataPeserta.nama} (${dataPeserta.id})`;
+
+      renderNavGrid();
+      tampilkanSoal(0);
+      mulaiTimer();
+    }
+
+    function mulaiTimer() {
       updateTimerDisplay();
-
       timerInterval = setInterval(() => {
-        remainingSeconds--;
+        sisaDetik--;
         updateTimerDisplay();
 
-        if (remainingSeconds <= 0) {
+        if (sisaDetik <= 300) {
+          document.getElementById('timer-box').classList.add('timer-danger');
+        }
+        if (sisaDetik <= 0) {
           clearInterval(timerInterval);
-          submitExam(true);
+          alert('Waktu ujian 60 menit telah habis! Jawaban akan dikirim secara otomatis.');
+          kirimJawabanKeServer();
         }
       }, 1000);
     }
 
-    function toggleFullscreen() {
-      const docEl = document.documentElement;
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (docEl.requestFullscreen) {
-          docEl.requestFullscreen().catch(() => {});
-        } else if (docEl.webkitRequestFullscreen) {
-          docEl.webkitRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
-      }
+    function updateTimerDisplay() {
+      const menit = Math.floor(sisaDetik / 60);
+      const detik = sisaDetik % 60;
+      document.getElementById('timer-display').innerText =
+        String(menit).padStart(2, '0') + ':' + String(detik).padStart(2, '0');
     }
 
-    function syncFullscreenButton() {
-      const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
-      fullscreenBtn.textContent = active ? "Keluar Layar Penuh" : "Layar Penuh";
-    }
+    function tampilkanSoal(index) {
+      currentIndex = index;
+      const soal = daftarSoal[index];
 
-    document.addEventListener("fullscreenchange", syncFullscreenButton);
-    document.addEventListener("webkitfullscreenchange", syncFullscreenButton);
+      document.getElementById('q-number').innerText = `Soal No. ${index + 1} dari ${daftarSoal.length}`;
+      document.getElementById('q-text').innerText = soal.pertanyaan;
 
-    async function startExam() {
-      hideError(loginError);
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
 
-      const name = studentNameInput.value.trim();
-      const studentId = studentIdInput.value.trim();
-      const token = examTokenInput.value.trim();
+      ['A', 'B', 'C', 'D', 'E'].forEach(huruf => {
+        const teksOpsi = soal.opsi[huruf];
+        if (!teksOpsi) return;
 
-      if (!name || !studentId || !token) {
-        showError(loginError, "Nama lengkap, NIS/NIM, dan Token ujian wajib diisi.");
-        return;
-      }
+        const isSelected = jawabanUser[soal.id] === huruf;
+        const div = document.createElement('div');
+        div.className = 'option-item' + (isSelected ? ' selected' : '');
+        div.onclick = () => pilihJawaban(soal.id, huruf);
 
-      startBtn.disabled = true;
-      startBtn.textContent = "Memuat 50 Soal...";
-
-      try {
-        const url = `${API_URL}?token=${encodeURIComponent(token)}`;
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status);
-        }
-
-        const data = await res.json();
-        if (!data.ok) {
-          showError(loginError, data.message || "Gagal memuat soal.");
-          return;
-        }
-
-        const loadedQuestions = Array.isArray(data.questions)
-          ? data.questions.slice(0, MAX_QUESTIONS)
-          : [];
-
-        if (!loadedQuestions.length) {
-          showError(loginError, "SOAL TIDAK DITEMUKAN.");
-          return;
-        }
-
-        questions = loadedQuestions;
-        currentIndex = 0;
-        answers = {};
-        sessionData = { name, studentId, token };
-
-        participantBadge.textContent = `${name} (${studentId})`;
-        loginScreen.classList.add("hidden");
-        resultScreen.classList.add("hidden");
-        examScreen.classList.remove("hidden");
-
-        buildNavGrid();
-        renderQuestion();
-        startTimer(data.durationSeconds || DEFAULT_DURATION_SECONDS);
-      } catch (err) {
-        showError(loginError, "Gagal terhubung ke Google Apps Script. Periksa URL deployment.");
-      } finally {
-        startBtn.disabled = false;
-        startBtn.textContent = "Mulai Ujian";
-      }
-    }
-
-    function buildNavGrid() {
-      navGrid.innerHTML = "";
-      questions.forEach((q, idx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "num-btn";
-        btn.textContent = String(idx + 1);
-        btn.addEventListener("click", () => {
-          currentIndex = idx;
-          renderQuestion();
-        });
-        navGrid.appendChild(btn);
+        div.innerHTML = `
+          <div class="option-letter">${huruf}</div>
+          <div class="option-text">${teksOpsi}</div>
+        `;
+        container.appendChild(div);
       });
+
+      document.getElementById('btn-prev').disabled = index === 0;
+      document.getElementById('btn-next').disabled = index === daftarSoal.length - 1;
+
       updateNavGrid();
+    }
+
+    function pilihJawaban(idSoal, huruf) {
+      jawabanUser[idSoal] = huruf;
+      tampilkanSoal(currentIndex);
+    }
+
+    function toggleRagu() {
+      const idSoal = daftarSoal[currentIndex].id;
+      raguUser[idSoal] = !raguUser[idSoal];
+      updateNavGrid();
+    }
+
+    function navigasiSoal(arah) {
+      const target = currentIndex + arah;
+      if (target >= 0 && target < daftarSoal.length) {
+        tampilkanSoal(target);
+      }
+    }
+
+    function renderNavGrid() {
+      const grid = document.getElementById('nav-grid');
+      grid.innerHTML = '';
+      daftarSoal.forEach((soal, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-btn';
+        btn.id = 'nav-btn-' + idx;
+        btn.innerText = idx + 1;
+        btn.onclick = () => tampilkanSoal(idx);
+        grid.appendChild(btn);
+      });
     }
 
     function updateNavGrid() {
-      const buttons = navGrid.querySelectorAll(".num-btn");
-      let answeredTotal = 0;
+      let terjawab = 0;
+      daftarSoal.forEach((soal, idx) => {
+        const btn = document.getElementById('nav-btn-' + idx);
+        btn.className = 'nav-btn';
+        if (idx === currentIndex) btn.classList.add('active');
 
-      questions.forEach((q, idx) => {
-        const hasAns = Boolean(answers[q.id]);
-        if (hasAns) answeredTotal++;
+        if (raguUser[soal.id]) {
+          btn.classList.add('doubt');
+        } else if (jawabanUser[soal.id]) {
+          btn.classList.add('answered');
+        }
 
-        const btn = buttons[idx];
-        if (!btn) return;
-
-        btn.classList.toggle("answered", hasAns);
-        btn.classList.toggle("current", idx === currentIndex);
+        if (jawabanUser[soal.id]) terjawab++;
       });
 
-      answeredCount.textContent = `Terjawab: ${answeredTotal} / ${questions.length}`;
+      document.getElementById('q-progress').innerText = `Terjawab: ${terjawab} / ${daftarSoal.length}`;
     }
 
-    function renderQuestion() {
-      const q = questions[currentIndex];
-      if (!q) return;
+    function konfirmasiSelesai() {
+      const terjawab = Object.keys(jawabanUser).length;
+      const belum = daftarSoal.length - terjawab;
+      const pesan = belum > 0
+        ? `Masih ada ${belum} soal yang belum dijawab. Apakah Anda yakin ingin mengakhiri ujian?`
+        : 'Semua soal telah dijawab. Apakah Anda yakin ingin mengirim jawaban sekarang?';
 
-      qCounter.textContent = `Soal ${currentIndex + 1} dari ${questions.length}`;
-      qText.textContent = q.question;
-
-      const imgSrc = String((q.image || q.gambar || "")).trim();
-      if (imgSrc) {
-        qImage.src = imgSrc;
-        qImage.classList.remove("hidden");
-      } else {
-        qImage.removeAttribute("src");
-        qImage.classList.add("hidden");
-      }
-
-      optionsBox.innerHTML = "";
-
-      ["A", "B", "C", "D", "E"].forEach((letter) => {
-        const optText = q.options && q.options[letter];
-        if (!optText) return;
-
-        const selected = answers[q.id] === letter;
-        const label = document.createElement("label");
-        label.className = `option ${selected ? "active" : ""}`;
-
-        const radio = document.createElement("input");
-        radio.type = "radio";
-        radio.name = `opt-${q.id}`;
-        radio.value = letter;
-        radio.checked = selected;
-        radio.addEventListener("change", () => {
-          answers[q.id] = letter;
-          renderQuestion();
-        });
-
-        const letterSpan = document.createElement("span");
-        letterSpan.className = "opt-letter";
-        letterSpan.textContent = `${letter}.`;
-
-        const textSpan = document.createElement("span");
-        textSpan.textContent = optText;
-
-        label.appendChild(radio);
-        label.appendChild(letterSpan);
-        label.appendChild(textSpan);
-        optionsBox.appendChild(label);
-      });
-
-      prevBtn.disabled = currentIndex === 0;
-      nextBtn.disabled = currentIndex === questions.length - 1;
-      updateNavGrid();
-    }
-
-    function prevQuestion() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderQuestion();
+      if (confirm(pesan)) {
+        kirimJawabanKeServer();
       }
     }
 
-    function nextQuestion() {
-      if (currentIndex < questions.length - 1) {
-        currentIndex++;
-        renderQuestion();
-      }
-    }
-
-    function confirmSubmitExam() {
-      const answeredTotal = questions.filter((q) => Boolean(answers[q.id])).length;
-      const unanswered = questions.length - answeredTotal;
-      const msg = unanswered > 0
-        ? `Masih ada ${unanswered} soal yang belum dijawab. Yakin ingin mengumpulkan jawaban sekarang?`
-        : "Yakin ingin mengumpulkan semua jawaban ujian sekarang?";
-
-      if (confirm(msg)) {
-        submitExam(false);
-      }
-    }
-
-    async function submitExam(isAutoSubmit) {
-      if (isSubmitting) return;
-      isSubmitting = true;
-      hideError(examError);
-
+    function kirimJawabanKeServer() {
+      if (ujianSelesai) return;
+      ujianSelesai = true;
       clearInterval(timerInterval);
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = isAutoSubmit ? "Waktu Habis, Mengirim..." : "Mengirim Jawaban...";
 
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify({
-            token: sessionData.token,
-            name: sessionData.name,
-            studentId: sessionData.studentId,
-            answers: answers
-          })
-        });
+      showLoader(true, 'Menghitung nilai dan menyimpan hasil...');
 
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status);
-        }
+      const payload = {
+        namaPeserta: dataPeserta.nama,
+        idPeserta: dataPeserta.id,
+        mapel: dataPeserta.mapel,
+        jawabanUser: jawabanUser
+      };
 
-        const data = await res.json();
-        if (!data.ok) {
-          throw new Error(data.message || "Gagal menyimpan hasil ujian.");
-        }
+      google.script.run
+        .withSuccessHandler(function(hasil) {
+          showLoader(false);
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          }
+          document.getElementById('exam-screen').style.display = 'none';
+          document.getElementById('result-screen').style.display = 'flex';
 
-        timerBox.classList.add("hidden");
-        examScreen.classList.add("hidden");
-        resultScreen.classList.remove("hidden");
+          document.getElementById('res-skor').innerText = hasil.skor;
+          document.getElementById('res-nama').innerText = hasil.namaPeserta;
+          document.getElementById('res-id').innerText = hasil.idPeserta;
+          document.getElementById('res-mapel').innerText = hasil.mapel;
+          document.getElementById('res-benar').innerText = `${hasil.benar} dari ${hasil.totalSoal}`;
+        })
+        .withFailureHandler(function(err) {
+          ujianSelesai = false;
+          showLoader(false);
+          alert('Gagal mengirim jawaban, silakan coba lagi: ' + err.message);
+        })
+        .submitJawaban(payload);
+    }
 
-        scoreDisplay.textContent = `${data.score}`;
-        resultSummary.innerHTML = `
-          <strong>Nama:</strong> ${escapeHtml(data.name)}<br />
-          <strong>NIS / NIM:</strong> ${escapeHtml(data.studentId)}<br />
-          <strong>Jawaban Benar:</strong> ${data.correct} dari ${data.total} soal
-        `;
-      } catch (err) {
-        isSubmitting = false;
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex === questions.length - 1;
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Kumpulkan Jawaban";
-        showError(examError, "Gagal mengirim jawaban: " + err.message);
+    // Peringatan jika peserta mencoba keluar/refresh halaman saat ujian berlangsung
+    window.addEventListener('beforeunload', function(e) {
+      if (daftarSoal.length > 0 && !ujianSelesai) {
+        e.preventDefault();
+        e.returnValue = '';
       }
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+    });
   </script>
 </body>
 </html>
